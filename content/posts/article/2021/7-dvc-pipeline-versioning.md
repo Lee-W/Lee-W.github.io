@@ -1,5 +1,6 @@
 Title: DVC - Pipeline Versioning
 Date: 2021-06-20 11:30
+Modified: 2021-06-27 17:58
 Category: Tech
 Tags: Data, Version Control, DVC
 Slug: dvc-pipeline-versioning
@@ -77,7 +78,7 @@ git add dvc.yaml output/.gitignore dvc.lock
 Next, we add these DVC files into git to track.
 
 # add DVC configuration to git and commit
-$ git add dvc.yaml dvc.lock model/.gitignore
+$ git add dvc.yaml dvc.lock output/.gitignore
 $ pipenv run cz commit
 ```
 
@@ -103,12 +104,12 @@ stages:
   process-data:
     cmd: pipenv run python digit_recognizer/digit_recognizer.py process-data
     deps:
-      - data/digit_data.csv
-      - data/digit_target.csv
-      - digit_recognizer/digit_recognizer.py
+    - data/digit_data.csv
+    - data/digit_target.csv
+    - digit_recognizer/digit_recognizer.py
     outs:
-      - output/testing_data.pkl
-      - output/training_data.pkl
+    - output/testing_data.pkl
+    - output/training_data.pkl
 ```
 
 DVC transforms what we defined in `dvc run` to a human-readable format and store it. But if you already know how to define the stage, you can edit `dvc.yaml` directly. In addition, there're advanced techniques like [Templating](https://dvc.org/doc/user-guide/project-structure/pipelines-files#templating) and [foreach stages](https://dvc.org/doc/user-guide/project-structure/pipelines-files#foreach-stages) that can help us define complicated stages.
@@ -335,12 +336,12 @@ stages:
   process-data:
     ......
     params:
-      - train.shuffle
-      - train.test_size
+    - process_data.shuffle
+    - process_data.test_size
   train:
       ......
     params:
-      - train.gamma
+    - train.gamma
 ```
 
 `params.yaml` is the default parameter file name, but DVC also supports YAML, JSON, TOML, and [Python files](https://dvc.org/doc/command-reference/params#examples-python-parameters-file). We only need to add the file name as an additional layer to `params` to use it. e.g.,
@@ -351,8 +352,8 @@ stages:
   train:
       ......
     params:
-      - params.json
-        - train.gamma
+    - params.json
+      - train.gamma
 ```
 
 Let's change gamma to 0.1. We can check this change through [dvc params diff](https://dvc.org/doc/command-reference/params/diff). By providing git reference, we can even see parameters difference between different git commits. (e.g., `dvc params diff HEAD~1`)
@@ -416,7 +417,7 @@ $ cat dvc.yaml
   report:
     ......
     metrics:
-      - metrics.json:
+    - metrics.json:
 ```
 
 Use [dvc metrics show](https://dvc.org/doc/command-reference/metrics/show) to see how well our model performs
